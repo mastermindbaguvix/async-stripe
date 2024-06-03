@@ -1154,6 +1154,20 @@ pub struct LineItemsDiscountAmount {
     pub discount: Discount,
 }
 
+#[derive(Copy, Default, Clone, Debug, Deserialize, Serialize, Eq, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum PaymentMethodSave {
+    #[default]
+    Disabled,
+    Enabled,
+}
+
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct SavedPaymentMethodsOptions {
+    /// Enable customers to choose if they wish to save their payment method for future use. Disabled by default.
+    pub payment_method_save: PaymentMethodSave,
+}
+
 /// The parameters for `CheckoutSession::create`.
 #[derive(Clone, Debug, Serialize, Default)]
 pub struct CreateCheckoutSession<'a> {
@@ -1342,6 +1356,10 @@ pub struct CreateCheckoutSession<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub return_url: Option<&'a str>,
 
+    /// Controls saved payment method settings for the session. Only available in `payment` and `subscription` mode.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub saved_payment_method_options: Option<SavedPaymentMethodsOptions>,
+
     /// A subset of parameters to be passed to SetupIntent creation for Checkout Sessions in `setup` mode.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_intent_data: Option<CreateCheckoutSessionSetupIntentData>,
@@ -1420,6 +1438,7 @@ impl<'a> CreateCheckoutSession<'a> {
             phone_number_collection: Default::default(),
             redirect_on_completion: Default::default(),
             return_url: Default::default(),
+            saved_payment_method_options: Default::default(),
             setup_intent_data: Default::default(),
             shipping_address_collection: Default::default(),
             shipping_options: Default::default(),
